@@ -1,8 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -12,9 +10,10 @@ datasource db {
   provider = "postgresql"
 }
 
+
 model User {
   id            String    @id
-  name          String
+  name          String 
   email         String
   emailVerified Boolean   @default(false)
   image         String?
@@ -22,6 +21,12 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+
+  // Admin plugin fields
+  role          String?   @default("user")
+  banned        Boolean?  @default(false)
+  banReason     String?
+  banExpires    DateTime?
 
   @@unique([email])
   @@map("user")
@@ -37,6 +42,9 @@ model Session {
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Admin plugin field
+  impersonatedBy String?
 
   @@unique([token])
   @@index([userId])
@@ -74,3 +82,17 @@ model Verification {
   @@index([identifier])
   @@map("verification")
 }
+
+
+
+model Chalani {
+  id            String   @id @default(cuid())
+  chalaniNumber String   @unique
+  personName    String
+  imageUrls     String[] // array of paths, e.g. ["/uploads/a.png", "/uploads/b.png"]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+
+
